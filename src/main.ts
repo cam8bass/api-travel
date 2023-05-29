@@ -1,6 +1,7 @@
 import express, { NextFunction, Request } from "express";
 import morgan from "morgan";
 import tourRouter from "./routes/tour.routes";
+import accommodationRouter from "./routes/accommodation.routes";
 import { nodeEnv } from "./shared/types/types";
 import errorController from "./controllers/error.controller";
 import AppError from "./shared/utils/AppError.util";
@@ -14,6 +15,7 @@ if (nodeEnv === "development") {
 }
 // 2) ROUTES
 app.use("/api/v1/tours", tourRouter);
+app.use("/api/v1/accommodations", accommodationRouter);
 app.use("*", (req: Request, _, next: NextFunction) => {
   next(
     new AppError(

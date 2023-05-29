@@ -1,7 +1,8 @@
 import { ObjectId } from "mongoose";
 import { difficulty, transport } from "../types/types";
+import { Document } from "mongoose";
 
-export interface TourInterface {
+export interface TourInterface extends Document {
   title: string;
   summary: string;
   description: string;

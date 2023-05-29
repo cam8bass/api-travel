@@ -3,10 +3,17 @@ import Tour from "../models/tour.model";
 import catchAsync from "../shared/utils/catchAsync.util";
 import AppError from "../shared/utils/AppError.util";
 import { EMPTY_RESULT } from "../shared/messages/error.message";
+import QueryFilter from "../shared/utils/QueryFilter.util";
 
 export const getAllTours = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const tours = await Tour.find();
+    const filteredQuery = new QueryFilter(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .field()
+      .page();
+
+    const tours = await filteredQuery.query;
 
     if (!tours) {
       return next(new AppError(EMPTY_RESULT, 404));
@@ -31,6 +38,7 @@ export const createTour = catchAsync(
       price: req.body.price,
       duration: req.body.duration,
       maxGroupSize: req.body.maxGroupSize,
+      startDates: req.body.startDates,
     });
 
     res.status(201).json({
@@ -90,10 +98,13 @@ export const deleteTour = catchAsync(
     if (!tour) {
       return next(new AppError(EMPTY_RESULT, 404));
     }
-    
+
     res.status(200).json({
       status: "success",
       message: `Le document ayant l'identifiant ${id} a été supprimé avec succès.`,
     });
   }
 );
+
+
+
