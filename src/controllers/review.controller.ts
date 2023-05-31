@@ -1,101 +1,114 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
-import Tour from "../models/tour.model";
 import catchAsync from "../shared/utils/catchAsync.util";
+import Review from "../models/review.model";
+import { NextFunction, Request, Response } from "express";
 import AppError from "../shared/utils/AppError.util";
 import { EMPTY_RESULT } from "../shared/messages/error.message";
-import QueryFilter from "../shared/utils/QueryFilter.util";
 import { bodyFilter } from "../shared/utils/bodyFilter";
-import { TourInterface } from "../shared/interfaces";
+import { ReviewInterface } from "../shared/interfaces";
 
-export const getAllTours = catchAsync(
+export const getAllReviews = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const filteredQuery = new QueryFilter(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .field()
-      .page();
+    const reviews = await Review.find();
 
-    const tours = await filteredQuery.query;
-
-    if (!tours) {
+    if (!reviews) {
       return next(new AppError(EMPTY_RESULT, 404));
     }
 
     res.status(200).json({
       status: "success",
-      results: tours.length,
+      results: reviews.length,
       data: {
-        tours,
+        reviews,
       },
     });
   }
 );
 
-export const createTour = catchAsync(
+export const createReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const tour = await Tour.create(req.body);
+    let query: Record<string, any>;
+
+    if (req.params.tourId) {
+      req.body.tourId = req.params.tourId;
+      query = Review.create({
+        review: req.body.review,
+        rating: req.body.rating,
+        tour: req.body.tourId,
+      });
+    } else if (req.params.accommodationId) {
+      req.body.accommodationId = req.params.accommodationId;
+      query = Review.create({
+        review: req.body.review,
+        rating: req.body.rating,
+        accommodation: req.body.accommodationId,
+      });
+    }
+
+    const review = await query;
 
     res.status(201).json({
       status: "success",
       data: {
-        tour,
+        review,
       },
     });
   }
 );
 
-export const getTour = catchAsync(
+export const getReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    const tour = await Tour.findById(id).populate([
-      { path: "reviews", select: "-__v" },
-      {
-        path: "accommodations",
-        select: "name ratingsAverage ratingsQuantity -tours",
-      },
+
+    const review = await Review.findById(id).populate([
+      { path: "tour", select: "name" },
     ]);
 
-    if (!tour) {
+    if (!review) {
       return next(new AppError(EMPTY_RESULT, 404));
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        tour,
+        review,
       },
     });
   }
 );
 
-export const updateTour = catchAsync(
+export const updateReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-
-    const tour = await Tour.findByIdAndUpdate(id, req.body, {
+    const filteredBody = bodyFilter<ReviewInterface>(
+      req.body,
+      "review",
+      "rating"
+    );
+    const review = await Review.findByIdAndUpdate(id, filteredBody, {
       new: true,
       runValidators: true,
     });
 
-    if (!tour) {
+    if (!review) {
       return next(new AppError(EMPTY_RESULT, 404));
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        tour,
+        review,
       },
     });
   }
 );
 
-export const deleteTour = catchAsync(
+export const deleteReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    const tour = await Tour.findByIdAndDelete(id);
 
-    if (!tour) {
+    const review = await Review.findByIdAndDelete(id);
+
+    if (!review) {
       return next(new AppError(EMPTY_RESULT, 404));
     }
 

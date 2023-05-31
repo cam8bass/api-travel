@@ -4,22 +4,21 @@ import { TourInterface } from "../shared/interfaces";
 
 const tourSchema = new Schema<TourInterface>(
   {
-    title: {
+    name: {
       type: String,
       trim: true,
       lowercase: true,
-      minlength: [3, "Le champ titre doit contenir au minimum 3 caractères"],
-      maxlength: [20, "Le champ titre doit contenir au maximum 20 caractères"],
-      required: [true, "Le champ titre est obligatoire"],
-      unique: true,
+      minlength: [3, "Le champ nom doit contenir au minimum 3 caractères"],
+      maxlength: [30, "Le champ nom doit contenir au maximum 30 caractères"],
+      required: [true, "Le champ nom est obligatoire"],
     },
     summary: {
       type: String,
       trim: true,
       minlength: [20, "Le champ résumé doit contenir au minimum 20 caractères"],
       maxlength: [
-        200,
-        "Le champ résumé doit contenir au maximum 200 caractères",
+        300,
+        "Le champ résumé doit contenir au maximum 300 caractères",
       ],
       required: [true, "Le champ résumé est obligatoire"],
     },
@@ -31,8 +30,8 @@ const tourSchema = new Schema<TourInterface>(
         "Le champ description doit contenir au minimum 200 caractères",
       ],
       maxlength: [
-        600,
-        "Le champ description doit contenir au maximum 600 caractères",
+        800,
+        "Le champ description doit contenir au maximum 800 caractères",
       ],
       required: [true, "Le champ description est obligatoire"],
     },
@@ -70,7 +69,7 @@ const tourSchema = new Schema<TourInterface>(
       ],
       default: 4.5,
     },
-    ratingsQuantiy: {
+    ratingsQuantity: {
       type: Number,
       trim: true,
       default: 0,
@@ -119,15 +118,77 @@ const tourSchema = new Schema<TourInterface>(
           "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
       },
     },
-    // guides: {},
-    // startLocation: {},
-    // itinary: {},
+
+    itinerary: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinate: [Number],
+        day: {
+          type: Number,
+          min: [1, "Le jour minimum est 1"],
+          max: [365, "Le jour maximum est 365"],
+          trim: true,
+          required: [true, "Le jour est obligatoire"],
+        },
+        title: {
+          type: String,
+          trim: true,
+          lowercase: true,
+          required: [true, "Le titre de l'itinéraire est obligatoire"],
+          minlength: [
+            3,
+            "Le titre de l'itinéraire doit comporter au minimum 3 caractères",
+          ],
+          maxlength: [
+            50,
+            "Le titre de l'itinéraire doit comporter au maximum 50 caractères",
+          ],
+        },
+        description: {
+          type: String,
+          trim: true,
+          minlength: [
+            20,
+            "Le champ description de l'itinéraire doit contenir au minimum 20 caractères",
+          ],
+          maxlength: [
+            600,
+            "Le champ description de l'itinéraire doit contenir au maximum 600 caractères",
+          ],
+          required: [
+            true,
+            "Le champ description de l'itinéraire est obligatoire",
+          ],
+        },
+      },
+    ],
+    // REF
+    guides: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+    },
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+
+tourSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "tour",
+  localField: "_id",
+});
+
+tourSchema.virtual("accommodations", {
+  ref: "Accommodation",
+  foreignField: "tours",
+  localField: "_id",
+});
 
 const Tour = model<TourInterface>("Tour", tourSchema);
 

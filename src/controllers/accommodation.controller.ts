@@ -4,14 +4,11 @@ import Accommodation from "../models/accommodation.model";
 import AppError from "../shared/utils/AppError.util";
 import { EMPTY_RESULT } from "../shared/messages/error.message";
 import { AccommodationInterface } from "../shared/interfaces";
-import { bodyFilter } from "../shared/utils/bodyFilter";
+
 
 export const getAllAccommodations = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const accommodations = await Accommodation.find().populate({
-      path: "tours",
-      select: "title",
-    });
+    const accommodations = await Accommodation.find();
 
     if (!accommodations) {
       return next(new AppError(EMPTY_RESULT, 404));
@@ -28,14 +25,8 @@ export const getAllAccommodations = catchAsync(
 );
 export const createAccommodations = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const accommodation = await Accommodation.create({
-      name: req.body.name,
-      services: req.body.services,
-      description: req.body.description,
-      imageCover: req.body.imageCover,
-      images: req.body.images,
-      tours: req.body.tours,
-    });
+    if (req.params.tourId) req.body.tours = req.params.tourId;
+    const accommodation = await Accommodation.create(req.body);
 
     res.status(201).json({
       status: "success",
@@ -48,10 +39,10 @@ export const createAccommodations = catchAsync(
 export const getAccommodations = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    const accommodation = await Accommodation.findById(id).populate({
-      path: "tours",
-      select: "title",
-    });
+    const accommodation = await Accommodation.findById(id).populate([
+      { path: "reviews", select: "-__v" },
+      { path: "tours", select: "name" },
+    ]);
 
     if (!accommodation) {
       return next(new AppError(EMPTY_RESULT, 404));
@@ -68,20 +59,11 @@ export const getAccommodations = catchAsync(
 export const updateAccommodation = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    const filteredBody = bodyFilter(
-      req.body,
-      "name",
-      "description",
-      "services",
-      "images",
-      "imageCover",
-      "tours"
-    );
 
     const accommodation =
       await Accommodation.findByIdAndUpdate<AccommodationInterface>(
         id,
-        filteredBody,
+        req.body,
         {
           new: true,
           runValidators: true,

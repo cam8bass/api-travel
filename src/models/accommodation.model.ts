@@ -1,4 +1,3 @@
-import path from "path";
 import { Schema, model } from "mongoose";
 import { AccommodationInterface } from "../shared/interfaces";
 
@@ -11,8 +10,8 @@ const accommodationSchema = new Schema<AccommodationInterface>(
         "Le champ nom de l'hébergement doit comporter au moins 3 caractères.",
       ],
       maxlength: [
-        20,
-        "Le champ nom de l'hébergement ne peut pas dépasser 20 caractères.",
+        30,
+        "Le champ nom de l'hébergement ne peut pas dépasser 30 caractères.",
       ],
       trim: true,
       lowercase: true,
@@ -26,8 +25,8 @@ const accommodationSchema = new Schema<AccommodationInterface>(
         "Le champ description doit comporter au moins 50 caractères",
       ],
       maxlength: [
-        300,
-        "Le champ description ne peut pas dépasser 300 caractères",
+        600,
+        "Le champ description ne peut pas dépasser 600 caractères",
       ],
       required: [true, "Le champ description est obligatoire"],
     },
@@ -35,23 +34,7 @@ const accommodationSchema = new Schema<AccommodationInterface>(
       type: Date,
       default: Date.now(),
     },
-    imageCover: {
-      type: String,
-      required: [true, "Le champ image de couverture est obligatoire"],
-      validate: {
-        validator: function (this: AccommodationInterface) {
-          const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
-          const extension = path.extname(this.imageCover).toLowerCase();
-          if (validExtension.includes(extension)) {
-            return true;
-          }
-          return false;
-        },
-        message:
-          "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
-      },
-      trim: true,
-    },
+
     ratingsAverage: {
       type: Number,
       trim: true,
@@ -67,49 +50,64 @@ const accommodationSchema = new Schema<AccommodationInterface>(
       trim: true,
       required: [true, "Le champ services est obligatoire"],
     },
-    images: {
-      type: [String],
-      trim: true,
-      validate: {
-        validator: function (this: AccommodationInterface) {
-          const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
-          const extension = this.images.map((el) =>
-            path.extname(el).toLowerCase()
-          );
 
-          if (extension.every((ext) => validExtension.includes(ext))) {
-            return true;
-          }
-          return false;
-        },
-        message:
-          "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
+    location: {
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinate: [Number],
+      address: {
+        type: String,
+        minlength: [
+          5,
+          "Le champ adresse doit contenir au minimum 5 caractères",
+        ],
+        max: [30, "Le champ adresse doit contenir au maximum 30 caractères"],
+        trim: true,
+        lowercase: true,
+      },
+      city: {
+        type: String,
+        minlength: [2, "Le champ ville doit contenir au minimum 2 caractères"],
+        maxlength: [
+          30,
+          "Le champ ville doit contenir au maximum 30 caractères",
+        ],
+        trim: true,
+        lowercase: true,
+      },
+      phone: {
+        type: String,
+        minlength: [
+          12,
+          "Le champ 'numéro de téléphone' doit contenir au minimum 12 caractères et être présenté sous la forme suivante : 000-000-0000.",
+        ],
+        maxlength: [
+          12,
+          "Le champ 'numéro de téléphone' doit contenir au maximum 12 caractères et être présenté sous la forme suivante : 000-000-0000.",
+        ],
+        trim: true,
+        lowercase: true,
       },
     },
     tours: {
       type: [Schema.Types.ObjectId],
       ref: "Tour",
-      required: [true, "Le champ voyage est obligatoire"],
     },
-    // reviews: {
-    //   type: [Schema.Types.ObjectId],
-    //   ref: "Review",
-    // },
-    // location: {
-    //   type: "Point",
-    //   coordinate: [Number],
-    //   city: String,
-    //   address: String,
-    //   trim: true,
-    //   lowercase: true,
-    //   required: [true, "Le champ emplacement est obligatoire"],
-    // },
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+
+accommodationSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "accommodation",
+  localField: "_id",
+});
 
 const Accommodation = model<AccommodationInterface>(
   "Accommodation",
