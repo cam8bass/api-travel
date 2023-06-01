@@ -70,7 +70,7 @@ const userSchema = new Schema<UserInterface>({
   },
   role: {
     type: String,
-    enum: ["admin", "user", "guide", "seller"],
+    enum: ["admin", "user", "guide"],
     default: "user",
   },
   createAt: {
