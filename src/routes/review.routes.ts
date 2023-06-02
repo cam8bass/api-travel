@@ -6,7 +6,10 @@ const router = Router({ mergeParams: true });
 router
   .route("/")
   .get(reviewController.getAllReviews)
-  .post(reviewController.createReview);
+  .post(
+    reviewController.selectReviewForTourOrAccommodation,
+    reviewController.createReview
+  );
 
 router
   .route("/:id")
