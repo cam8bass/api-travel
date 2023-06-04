@@ -4,8 +4,15 @@ import reviewRouter from "./review.routes";
 
 const router = Router();
 
-// Mettre en place aggregate
+// AGGREGATE
+router.get("/tourByMonth/:years", tourController.getTourByMonth);
+router.get(
+  "/tourByGuidesByYears/:years",
+  tourController.getTourByGuidesByMonth
+);
+router.get("/getDistancePerItinerary", tourController.getDistancePerItinerary);
 
+// ROUTES
 router
   .route("/")
   .get(tourController.getAllTours)
