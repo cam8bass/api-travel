@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as accommodationController from "./../controllers/accommodation.controller";
+
 import reviewRouter from "./review.routes";
 
 const router = Router();

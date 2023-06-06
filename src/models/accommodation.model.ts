@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { AccommodationInterface } from "../shared/interfaces";
+import sanitizeHtml from "sanitize-html";
 
 const accommodationSchema = new Schema<AccommodationInterface>(
   {
@@ -16,6 +17,7 @@ const accommodationSchema = new Schema<AccommodationInterface>(
       trim: true,
       lowercase: true,
       required: [true, "Le champ nom de l'hébergement est obligatoire"],
+      set: (value: string) => sanitizeHtml(value),
     },
     description: {
       type: String,
@@ -29,6 +31,7 @@ const accommodationSchema = new Schema<AccommodationInterface>(
         "Le champ description ne peut pas dépasser 600 caractères",
       ],
       required: [true, "Le champ description est obligatoire"],
+      set: (value: string) => sanitizeHtml(value),
     },
     createAt: {
       type: Date,
@@ -49,6 +52,7 @@ const accommodationSchema = new Schema<AccommodationInterface>(
       type: [String],
       trim: true,
       required: [true, "Le champ services est obligatoire"],
+      set: (value: [string]) => value.map((service) => sanitizeHtml(service)),
     },
 
     location: {
@@ -67,6 +71,7 @@ const accommodationSchema = new Schema<AccommodationInterface>(
         max: [30, "Le champ adresse doit contenir au maximum 30 caractères"],
         trim: true,
         lowercase: true,
+        set: (value: string) => sanitizeHtml(value),
       },
       city: {
         type: String,
@@ -77,19 +82,17 @@ const accommodationSchema = new Schema<AccommodationInterface>(
         ],
         trim: true,
         lowercase: true,
+        set: (value: string) => sanitizeHtml(value),
       },
       phone: {
-        type: String,
-        minlength: [
-          12,
-          "Le champ 'numéro de téléphone' doit contenir au minimum 12 caractères et être présenté sous la forme suivante : 000-000-0000.",
-        ],
-        maxlength: [
-          12,
-          "Le champ 'numéro de téléphone' doit contenir au maximum 12 caractères et être présenté sous la forme suivante : 000-000-0000.",
-        ],
+        type: Number,
         trim: true,
-        lowercase: true,
+        validate: {
+          validator: function (this: AccommodationInterface) {
+            return this.location.phone.toString().length === 10;
+          },
+          message: "Le champ numéro de téléphone doit comporter 10 chiffres.",
+        },
       },
     },
     tours: {

@@ -55,6 +55,7 @@ export const getOne = <
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
+
     const doc = await Model.findById(id).populate(popOptions);
 
     if (!doc) {
@@ -132,6 +133,7 @@ export const createOne = <
   Model: Model<T>
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
     const doc = await Model.create(req.body);
 
     res.status(201).json({

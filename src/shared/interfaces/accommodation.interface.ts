@@ -11,7 +11,7 @@ export interface AccommodationInterface extends Document {
     type: string;
     coordinate: [number];
     address: string;
-    phone: string;
+    phone: number;
     city: string;
   };
   tours: [ObjectId];

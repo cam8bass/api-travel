@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { ReviewInterface } from "../shared/interfaces";
+import sanitizeHtml from "sanitize-html";
 
 const reviewSchema = new Schema<ReviewInterface>(
   {
@@ -15,6 +16,7 @@ const reviewSchema = new Schema<ReviewInterface>(
       ],
       trim: true,
       required: [true, "Le champ commentaire est obligatoire"],
+      set: (value: string) => sanitizeHtml(value),
     },
     rating: {
       type: Number,
@@ -44,13 +46,13 @@ const reviewSchema = new Schema<ReviewInterface>(
   }
 );
 
-reviewSchema.pre(/^find/,function(next){
+reviewSchema.pre(/^find/, function (next) {
   this.populate({
-    path:"user",
-    select:"pseudo"
-  })
-  next()
-})
+    path: "user",
+    select: "pseudo",
+  });
+  next();
+});
 
 const Review = model<ReviewInterface>("Review", reviewSchema);
 

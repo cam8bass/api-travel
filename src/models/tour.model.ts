@@ -1,7 +1,8 @@
 import path from "path";
-import { Schema, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
 import { TourInterface } from "../shared/interfaces";
-
+import validator from "validator";
+import sanitizeHtml from "sanitize-html";
 const tourSchema = new Schema<TourInterface>(
   {
     name: {
@@ -11,6 +12,7 @@ const tourSchema = new Schema<TourInterface>(
       minlength: [3, "Le champ nom doit contenir au minimum 3 caractères"],
       maxlength: [30, "Le champ nom doit contenir au maximum 30 caractères"],
       required: [true, "Le champ nom est obligatoire"],
+      set: (value: string) => sanitizeHtml(value),
     },
     summary: {
       type: String,
@@ -21,6 +23,7 @@ const tourSchema = new Schema<TourInterface>(
         "Le champ résumé doit contenir au maximum 300 caractères",
       ],
       required: [true, "Le champ résumé est obligatoire"],
+      set: (value: string) => sanitizeHtml(value),
     },
     description: {
       type: String,
@@ -34,6 +37,7 @@ const tourSchema = new Schema<TourInterface>(
         "Le champ description doit contenir au maximum 800 caractères",
       ],
       required: [true, "Le champ description est obligatoire"],
+      set: (value: string) => sanitizeHtml(value),
     },
     price: {
       type: Number,
@@ -81,6 +85,7 @@ const tourSchema = new Schema<TourInterface>(
     imageCover: {
       type: String,
       trim: true,
+      set: (value: string) => validator.escape(value),
       validate: {
         validator: function (this: TourInterface) {
           const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
@@ -102,12 +107,14 @@ const tourSchema = new Schema<TourInterface>(
     images: {
       type: [String],
       trim: true,
+      set: (value: [string]) => value.map((name) => sanitizeHtml(name)),
       validate: {
         validator: function (this: TourInterface) {
           const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
-          const extension = this.images.map((el) =>
-            path.extname(el).toLowerCase()
-          );
+
+          const extension = this.images.map((el) => {
+            return path.extname(el).toLowerCase();
+          });
 
           if (extension.every((ext) => validExtension.includes(ext))) {
             return true;
@@ -147,6 +154,7 @@ const tourSchema = new Schema<TourInterface>(
             50,
             "Le titre de l'itinéraire doit comporter au maximum 50 caractères",
           ],
+          set: (value: string) => sanitizeHtml(value),
         },
         description: {
           type: String,
@@ -163,6 +171,7 @@ const tourSchema = new Schema<TourInterface>(
             true,
             "Le champ description de l'itinéraire est obligatoire",
           ],
+          set: (value: string) => sanitizeHtml(value),
         },
       },
     ],

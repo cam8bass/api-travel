@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 import { UserInterface } from "../shared/interfaces";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import sanitizeHtml from "sanitize-html";
 
 const userSchema = new Schema<UserInterface>({
   firstname: {
@@ -55,6 +56,8 @@ const userSchema = new Schema<UserInterface>({
   photo: {
     type: String,
     default: "default-profile.png",
+    trim: true,
+    set: (value: string) => sanitizeHtml(value),
     validate: {
       validator: function (this: UserInterface) {
         const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
