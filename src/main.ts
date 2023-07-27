@@ -1,5 +1,7 @@
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
+import dotenv from "dotenv";
+import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
 import express, { NextFunction, Request } from "express";
 import hpp from "hpp";
@@ -12,10 +14,14 @@ import { nodeEnv } from "./shared/types/types";
 import errorController from "./controllers/error.controller";
 import AppError from "./shared/utils/AppError.util";
 
+dotenv.config({ path: "./config.env" });
+
 const app = express();
 const nodeEnv = process.env.NODE_ENV as nodeEnv;
 // 1) MIDDLEWARE
 app.use(helmet());
+
+app.use(cors());
 
 app.use(
   rateLimit({

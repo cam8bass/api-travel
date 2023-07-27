@@ -1,8 +1,15 @@
 import mongoose from "mongoose";
 import { nodeEnv } from "../types/types";
-
-async function connectToDB(databaseUri: string): Promise<void> {
+import client from "../../infisical";
+async function connectToDB(): Promise<void> {
   try {
+    const { secretValue: DATABSE } = await client.getSecret("DATABASE");
+    const { secretValue: DATABASE_PASSWORD } = await client.getSecret(
+      "DATABASE_PASSWORD"
+    );
+
+    const databaseUri = DATABSE.replace("<password>", DATABASE_PASSWORD);
+
     await mongoose.connect(databaseUri);
     console.log("✅ Database connected");
   } catch (error) {
