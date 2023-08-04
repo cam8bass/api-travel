@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import catchAsync from "../shared/utils/catchAsync.util";
-import { Model, PopulateOptions } from "mongoose";
+import { Model, PopulateOptions, Types } from "mongoose";
 import { EMPTY_RESULT } from "../shared/messages/error.message";
 import AppError from "../shared/utils/AppError.util";
 import QueryFilter from "../shared/utils/QueryFilter.util";
@@ -11,6 +11,8 @@ import {
   UserInterface,
 } from "../shared/interfaces";
 import { bodyFilter } from "../shared/utils/bodyFilter";
+import CacheManager from "../cache";
+import QueryFilterCache from "../shared/utils/QueryFilterCache";
 
 export const getAll = <
   T extends
@@ -22,24 +24,32 @@ export const getAll = <
   Model: Model<T>
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const filteredQuery = new QueryFilter(Model.find(), req.query)
-      .filter()
-      .sort()
-      .field()
-      .page();
+    let data: T[] | [] = [];
+    data = CacheManager.get(Model) as T[];
 
-    const doc = await filteredQuery.query;
+    if (!data) {
+      data = await Model.find().lean();
+      if (!data) {
+        return next(new AppError(EMPTY_RESULT, 404));
+      }
+      CacheManager.set(Model, data);
+    }
 
-    if (!doc) {
-      return next(new AppError(EMPTY_RESULT, 404));
+    // Si il y a une query
+    if (Object.entries(req.query).length) {
+      const filteredQuery = new QueryFilterCache(req.query, data)
+        .filter()
+        .field()
+        .sort()
+        .page();
+      // Retourne le cache filtré
+      data = filteredQuery.data;
     }
 
     res.status(200).json({
       status: "success",
-      results: doc.length,
-      data: {
-        doc,
-      },
+      results: data.length,
+      data,
     });
   });
 
@@ -54,19 +64,25 @@ export const getOne = <
   popOptions?: PopulateOptions[] | PopulateOptions
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const id = req.params.id;
+    const id = new Types.ObjectId(req.params.id);
 
-    const doc = await Model.findById(id).populate(popOptions);
+    let data: T | null = null;
 
-    if (!doc) {
-      return next(new AppError(EMPTY_RESULT, 404));
+    data = CacheManager.get(Model, id) as T;
+
+    if (!data) {
+      data = (await Model.findById(id).populate(popOptions).lean()) as T;
+
+      if (!data) {
+        return next(new AppError(EMPTY_RESULT, 404));
+      }
+
+      CacheManager.set(Model, data, id);
     }
 
     res.status(200).json({
       status: "success",
-      data: {
-        doc,
-      },
+      data,
     });
   });
 
@@ -81,9 +97,9 @@ export const deleteOne = <
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    const doc = await Model.findByIdAndDelete(id);
+    const data = await Model.findByIdAndDelete(id).select("_id").lean();
 
-    if (!doc) {
+    if (!data) {
       return next(new AppError(EMPTY_RESULT, 404));
     }
 
@@ -93,6 +109,7 @@ export const deleteOne = <
     });
   });
 
+// TODO: Voir pour mettre en place la modification du cache
 export const updateOne = <
   T extends
     | UserInterface
@@ -105,21 +122,21 @@ export const updateOne = <
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
+
     const filteredBody = bodyFilter(req.body, ...fields);
-    const doc = await Model.findByIdAndUpdate(id, filteredBody, {
+
+    const data = await Model.findByIdAndUpdate(id, filteredBody, {
       new: true,
       runValidators: true,
-    });
+    }).lean();
 
-    if (!doc) {
+    if (!data) {
       return next(new AppError(EMPTY_RESULT, 404));
     }
 
     res.status(200).json({
       status: "success",
-      data: {
-        doc,
-      },
+      data,
     });
   });
 
@@ -133,13 +150,10 @@ export const createOne = <
   Model: Model<T>
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
-    const doc = await Model.create(req.body);
+    const data = await Model.create(req.body);
 
     res.status(201).json({
       status: "success",
-      data: {
-        doc,
-      },
+      data,
     });
   });

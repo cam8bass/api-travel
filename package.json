@@ -24,6 +24,7 @@
     "infisical-node": "^1.4.3",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",
+    "node-cache": "^5.1.2",
     "sanitize-html": "^2.10.0",
     "validator": "^13.9.0"
   },

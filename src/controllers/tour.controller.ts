@@ -4,6 +4,7 @@ import catchAsync from "../shared/utils/catchAsync.util";
 import * as factory from "./../controllers/factory.controller";
 import AppError from "../shared/utils/AppError.util";
 import { EMPTY_RESULT } from "../shared/messages/error.message";
+import { TourInterface } from "../shared/interfaces";
 
 // AGGREGATE
 export const getTourByMonth = catchAsync(

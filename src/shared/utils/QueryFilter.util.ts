@@ -1,5 +1,8 @@
 import { Query } from "mongoose";
 
+
+
+// FIXME: Original
 export default class QueryFilter {
   public query: Query<any, any>;
   private queryString: Record<any, any>;

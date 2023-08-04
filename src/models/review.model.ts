@@ -51,6 +51,8 @@ reviewSchema.pre(/^find/, function (next) {
     path: "user",
     select: "pseudo",
   });
+
+  this.select("-__v");
   next();
 });
 

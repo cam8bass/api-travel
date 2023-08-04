@@ -187,6 +187,11 @@ const tourSchema = new Schema<TourInterface>(
   }
 );
 
+tourSchema.pre(/^find/, function (next) {
+  this.select("-__v");
+  next();
+});
+
 tourSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "tour",

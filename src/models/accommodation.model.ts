@@ -106,6 +106,11 @@ const accommodationSchema = new Schema<AccommodationInterface>(
   }
 );
 
+accommodationSchema.pre(/^find/, function (next) {
+  this.select("-__v");
+  next();
+});
+
 accommodationSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "accommodation",
