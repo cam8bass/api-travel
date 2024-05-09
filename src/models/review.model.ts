@@ -46,7 +46,18 @@ const reviewSchema = new Schema<ReviewInterface>(
   }
 );
 
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
+/**
+ * Pre-find middleware that populates the user field and excludes the version key from the result.
+ * This function is called before any find operation on the Review model.
+ * It automatically populates the 'user' field with the 'pseudo' of the user,
+ * and excludes the MongoDB version key (__v) from the query results.
+ *
+ * @param next - The next middleware function in the stack.
+ */
 reviewSchema.pre(/^find/, function (next) {
+  // Populates the 'user' field with the 'pseudo' property of the user document.
   this.populate({
     path: "user",
     select: "pseudo",

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { nodeEnv } from "../shared/types/types";
 import { AppErrorInterface } from "../shared/interfaces";
 import {
   handleCastError,
@@ -16,13 +15,13 @@ export default (
   res: Response,
   next: NextFunction
 ) => {
-  const nodeEnv = process.env.NODE_ENV as nodeEnv;
+  const {NODE_ENV} = process.env
   err.status = err.status || "Error";
   err.statusCode = err.statusCode || 500;
 
-  if (nodeEnv === "development") {
+  if (NODE_ENV === "development") {
     handleErrorDev(err, res);
-  } else if (nodeEnv === "production") {
+  } else if (NODE_ENV === "production") {
     let error = err;
 
     // ERROR CAST

@@ -105,11 +105,33 @@ const userSchema = new Schema<UserInterface>({
   },
 });
 
+userSchema.index({ email: 1 });
+
+/**
+ * Middleware to exclude the version key (`__v`) from the result of find queries.
+ * This is a pre-find hook that runs before executing any find query on the User model.
+ * It modifies the query to exclude the `__v` field, which is automatically added by Mongoose to track document revisions.
+ *
+ * @param next - The next middleware function in the stack.
+ * This function does not explicitly return a value but calls `next()` to pass control to the next middleware function.
+ */
 userSchema.pre(/^find/, function (next) {
+  // Exclude the `__v` field from the results.
   this.select("-__v");
   next();
 });
 
+/**
+ * Middleware for hashing the user's password before saving it to the database.
+ * This function checks if the password field of the document has been modified.
+ * If the password has not been modified, the middleware passes control to the next middleware function without making any changes.
+ * If the password has been modified, it hashes the new password using bcrypt with a salt round of 12,
+ * then sets the `passwordConfirm` field to `undefined` to prevent it from being saved to the database.
+ * Finally, it calls the next middleware function in the stack.
+ *
+ * @param next - A callback function to pass control to the next middleware function in the pre-save middleware stack.
+ * @returns {Promise<void>} This function does not explicitly return a value but must call `next()` to continue the middleware chain.
+ */
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();

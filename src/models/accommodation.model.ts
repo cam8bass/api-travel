@@ -106,6 +106,8 @@ const accommodationSchema = new Schema<AccommodationInterface>(
   }
 );
 
+accommodationSchema.index({tours:1,ratingsAverage:1,ratingsQuantity:1})
+
 accommodationSchema.pre(/^find/, function (next) {
   this.select("-__v");
   next();

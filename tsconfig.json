@@ -2,11 +2,12 @@
   "compilerOptions": {
     "target": "es2019",
     "module": "commonjs",
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "./dist/src",
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "inlineSources": true,
   },
   "exclude": ["node_modules"]
 }

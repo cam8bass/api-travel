@@ -10,14 +10,15 @@ import tourRouter from "./routes/tour.routes";
 import reviewRouter from "./routes/review.routes";
 import userRouter from "./routes/user.routes";
 import accommodationRouter from "./routes/accommodation.routes";
-import { nodeEnv } from "./shared/types/types";
 import errorController from "./controllers/error.controller";
 import AppError from "./shared/utils/AppError.util";
 
 dotenv.config({ path: "./config.env" });
+const {NODE_ENV}=process.env
 
 const app = express();
-const nodeEnv = process.env.NODE_ENV as nodeEnv;
+
+
 // 1) MIDDLEWARE
 app.use(helmet());
 
@@ -31,6 +32,7 @@ app.use(
     windowMs: 1000 * 60 * 60,
   })
 );
+
 app.use(
   express.json({
     limit: "10kb",
@@ -39,7 +41,8 @@ app.use(
 
 app.use(mongoSanitize());
 app.use(hpp()); // ajouter white liste
-if (nodeEnv === "development") {
+
+if (NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 // 2) ROUTES

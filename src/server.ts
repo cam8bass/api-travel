@@ -1,26 +1,28 @@
 import app from "./main";
 import connectToDB from "./shared/services/connectDb.service";
-import { nodeEnv } from "./shared/types/types";
+
 import http from "http";
 
-
+/**
+ * Starts the server.
+ */
 async function startServer() {
   let server: http.Server;
-  const nodeEnv = process.env.NODE_ENV as nodeEnv;
-  const { PORT } = process.env;
+
+  const { PORT, NODE_ENV } = process.env;
 
   await connectToDB();
 
-  const port = PORT || 3000;
+  const port = PORT || 4002;
 
   server = app.listen(port, () => {
     console.log(`✅ Server is listening on port ${port}`);
   });
 
   server.on("error", (error: any) => {
-    if (nodeEnv === "development") {
+    if (NODE_ENV === "development") {
       console.error("💥 Server startup error:", error);
-    } else if (nodeEnv === "production") {
+    } else if (NODE_ENV === "production") {
       console.error("💥 Server startup error:", error.name, error.message);
     }
 

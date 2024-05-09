@@ -30,3 +30,5 @@ coverage
 *.env
 dev-data
 todo.md
+
+.nvmrc
