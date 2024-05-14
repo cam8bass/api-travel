@@ -11,7 +11,7 @@ import {
 } from "../shared/interfaces";
 import { bodyFilter } from "../shared/utils/bodyFilter";
 import CacheManager from "../cache";
-import QueryFilterCache from "../shared/utils/QueryFilterCache";
+import QueryFilterCache from "../shared/utils/QueryFilterCache.utils";
 
 /**
  * Retrieves all documents of a given model from the database or cache. If a query is present in the request,

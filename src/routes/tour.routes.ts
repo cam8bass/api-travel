@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as tourController from "./../controllers/tour.controller";
-
+import { restrictTo } from "../controllers/auth.controller";
 import reviewRouter from "./review.routes";
 
 const router = Router();
@@ -17,13 +17,13 @@ router.get("/getDistancePerItinerary", tourController.getDistancePerItinerary);
 router
   .route("/")
   .get(tourController.getAllTours)
-  .post(tourController.createTour);
+  .post(restrictTo("admin"), tourController.createTour);
 
 router
   .route("/:id")
   .get(tourController.getTour)
-  .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .patch(restrictTo("admin"), tourController.updateTour)
+  .delete(restrictTo("admin"), tourController.deleteTour);
 
 // NESTED ROUTES
 router.use("/:tourId/reviews", reviewRouter);

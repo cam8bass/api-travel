@@ -12,26 +12,34 @@ import userRouter from "./routes/user.routes";
 import accommodationRouter from "./routes/accommodation.routes";
 import errorController from "./controllers/error.controller";
 import AppError from "./shared/utils/AppError.util";
+import { apiAuth } from "./controllers/auth.controller";
+import {
+  corsOptions,
+  helmetOptions,
+  rateLimiteOptions,
+  sentryOptions,
+} from "./config";
+import * as Sentry from "@sentry/node";
 
 dotenv.config({ path: "./config.env" });
-const {NODE_ENV}=process.env
+const { NODE_ENV } = process.env;
 
 const app = express();
 
-
+Sentry.init(sentryOptions);
 // 1) MIDDLEWARE
-app.use(helmet());
 
-app.use(cors());
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler());
 
-app.use(
-  rateLimit({
-    max: 100,
-    message:
-      "Vous avez atteint le nombre maximal de requêtes autorisées. Veuillez réessayer ultérieurement.",
-    windowMs: 1000 * 60 * 60,
-  })
-);
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
+
+app.use(helmet(helmetOptions));
+
+app.use(cors(corsOptions));
+
+app.use(rateLimit(rateLimiteOptions));
 
 app.use(
   express.json({
@@ -40,16 +48,33 @@ app.use(
 );
 
 app.use(mongoSanitize());
-app.use(hpp()); // ajouter white liste
+// app.use(hpp()); // ajouter white liste
 
 if (NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
 // 2) ROUTES
+app.use(apiAuth);
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/accommodations", accommodationRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/users", userRouter);
+
+// The error handler must be registered before any other error middleware and after all controllers
+app.use(Sentry.Handlers.errorHandler());
+
+// Optional fallthrough error handler
+app.use(function onError(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  Sentry.captureException(err);
+
+  next(err);
+});
 app.use("*", (req: Request, _, next: NextFunction) => {
   next(
     new AppError(
@@ -60,4 +85,6 @@ app.use("*", (req: Request, _, next: NextFunction) => {
 });
 // 3) ERROR
 app.use(errorController);
+
+
 export default app;

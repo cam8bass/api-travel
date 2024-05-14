@@ -32,3 +32,5 @@ dev-data
 todo.md
 
 .nvmrc
+# Sentry Config File
+.sentryclirc

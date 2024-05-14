@@ -19,9 +19,12 @@ export const handleErrorProd = (err: AppErrorInterface, res: Response) => {
       message: err.message,
     });
   } else {
+    const message =
+      "Une erreur s'est produite. Veuillez réessayer plus tard. Si le problème persiste, veuillez contacter notre équipe de support technique pour obtenir de l'aide.";
+
     res.status(500).json({
       status: "Error",
-      message: "Une erreur s'est produite. Veuillez réessayer plus tard.",
+      message,
     });
   }
 };
@@ -47,5 +50,8 @@ export const handleValidationError = (err: any): AppError => {
 export const handleDuplicateError = (err: any): AppError => {
   const value = err.message.match(/{([^}]+)}/)[0].trim();
 
-  return new AppError(`Désolé, une erreur est survenue lors de la création de l'élément. Un élément possède déjà la valeur ${value}. Veuillez vérifier les données saisies et réessayer.`, 400);
+  return new AppError(
+    `Désolé, une erreur est survenue lors de la création de l'élément. Un élément possède déjà la valeur ${value}. Veuillez vérifier les données saisies et réessayer.`,
+    400
+  );
 };
