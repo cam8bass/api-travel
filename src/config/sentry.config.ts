@@ -6,7 +6,7 @@ export const sentryOptions: Sentry.NodeOptions = {
   dsn: process.env.SENTRY_DSN,
   integrations: [
     // enable HTTP calls tracing
-    new Sentry.Integrations.Http({ tracing: true }),
+    new Sentry.Integrations.Http({ tracing: true}),
     // enable Express.js middleware tracing
     new Sentry.Integrations.Express({ app }),
     nodeProfilingIntegration(),

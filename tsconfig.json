@@ -3,7 +3,7 @@
     "target": "es2019",
     "module": "commonjs",
     "sourceMap": true,
-    "outDir": "./dist/src",
+    "outDir": "./dist",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

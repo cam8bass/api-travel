@@ -3,7 +3,7 @@ import { rateLimit } from "express-rate-limit";
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
-import express, { NextFunction, Request } from "express";
+import express, { NextFunction, Request,Response } from "express";
 import hpp from "hpp";
 import morgan from "morgan";
 import tourRouter from "./routes/tour.routes";
@@ -85,6 +85,5 @@ app.use("*", (req: Request, _, next: NextFunction) => {
 });
 // 3) ERROR
 app.use(errorController);
-
 
 export default app;

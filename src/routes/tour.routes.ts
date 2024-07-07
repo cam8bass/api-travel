@@ -12,7 +12,8 @@ router.get(
   tourController.getTourByGuidesByMonth
 );
 router.get("/getDistancePerItinerary", tourController.getDistancePerItinerary);
-
+router.get("/getMostPopularTours", tourController.getMostPopularTours);
+router.get("/getTop10ToursByRating", tourController.getTop10ToursByRating);
 // ROUTES
 router
   .route("/")

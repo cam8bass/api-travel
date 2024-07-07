@@ -39,6 +39,11 @@ const tourSchema = new Schema<TourInterface>(
       required: [true, "Le champ description est obligatoire"],
       set: (value: string) => sanitizeHtml(value),
     },
+    difficulty: {
+      type: String,
+      enum: ["easy", "medium", "hard"],
+      required: [true, "Le champ difficulté est obligatoire"],
+    },
     price: {
       type: Number,
       trim: true,
@@ -193,7 +198,7 @@ tourSchema.index({ price: 1, ratingsAverage: 1 });
  * Middleware function for Mongoose's pre-find hook.
  * This function is executed before any find operation on the model.
  * It modifies the query to exclude the version key (`__v`) from the results.
- * 
+ *
  * @param next - The next middleware function in the stack.
  * This function does not explicitly return a value but calls `next()` to pass control to the next middleware function.
  */

@@ -26,5 +26,5 @@ export const helmetOptions: Readonly<HelmetOptions> = {
   noSniff: true, // X-Content-Type-Options: empêche le MIME sniffing
   permittedCrossDomainPolicies: { permittedPolicies: "none" }, // X-Permitted-Cross-Domain-Policies
   referrerPolicy: { policy: "no-referrer" }, // Contrôle l'en-tête Referer
-  xssFilter: true, // X-XSS-Protection: active le filtre XSS dans la plupart des navigateurs modernes
+  xssFilter: true, // X-XSS-Protection: active le filtre XSS dans la plupart des navigateurs modernes,
 };

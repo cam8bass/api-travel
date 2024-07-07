@@ -1,5 +1,6 @@
 import { ObjectId } from "mongoose";
 import { Document } from "mongoose";
+import { difficultyType } from "../types/types";
 
 export interface TourInterface extends Document {
   name: string;
@@ -10,6 +11,7 @@ export interface TourInterface extends Document {
   maxGroupSize: number;
   ratingsQuantity: number;
   ratingsAverage: number;
+  difficulty: difficultyType;
   createAt: Date;
   imageCover: string;
   startDates: [Date];

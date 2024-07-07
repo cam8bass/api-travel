@@ -110,6 +110,71 @@ export const getTourByGuidesByMonth = catchAsync(
 export const getDistancePerItinerary = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {}
 );
+
+/**
+ * @function getMostPopularTours
+ * @description Retrieves the most popular tour based on a calculated popularity score.
+ * The popularity score is determined by multiplying the average rating by the number of ratings.
+ * The tour with the highest popularity score is returned.
+ *
+ * @param {Request} req - The request object from the client.
+ * @param {Response} res - The response object to send data back to the client.
+ * @param {NextFunction} next - The next middleware function in the stack.
+ *
+ * @returns {void} Sends a JSON response containing the most popular tour.
+ */
+export const getMostPopularTours = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tours = await Tour.aggregate([
+      {
+        $addFields: {
+          popularityScore: {
+            $multiply: ["$ratingsAverage", "$ratingsQuantity"],
+          },
+        },
+      },
+      {
+        $sort: { popularityScore: -1 },
+      },
+      {
+        $limit: 1,
+      },
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        tour: tours[0],
+      },
+    });
+  }
+);
+
+/**
+ * @function getTop10ToursByRating
+ * @description Retrieves the top 10 tours based on their average ratings.
+ * The tours are sorted in descending order of their ratings and limited to the top 10.
+ *
+ * @param {Request} req - The request object from the client.
+ * @param {Response} res - The response object to send data back to the client.
+ * @param {NextFunction} next - The next middleware function in the stack.
+ *
+ * @returns {void} Sends a JSON response containing the top 10 tours by rating.
+ */
+export const getTop10ToursByRating = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tours = await Tour.find().sort({ ratingsAverage: -1 }).limit(10);
+
+    res.status(200).json({
+      status: "success",
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  }
+);
+
 // CRUD
 export const getAllTours = factory.getAll(Tour);
 export const createTour = factory.createOne(Tour);

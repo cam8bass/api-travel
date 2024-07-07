@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import catchAsync from "./catchAsync.util";
 import { Types } from "mongoose";
 import AppError from "./AppError.util";
 import validator from "validator";
@@ -94,13 +93,13 @@ const setupRequestTimeout = (): {
  * @param {sendRequestHttpInterface} http - An object containing the URL and the HTTP method for the request.
  * @param {sendRequestDataInterface} data - An object containing the API key and API key ID to be sent as headers.
  * @param {AbortController} controller - An `AbortController` instance used to abort the request if it exceeds a timeout.
- * @returns {Promise<Response>} A promise that resolves with the response to the HTTP request.
+ * @returns {Promise<globalThis.Response>} A promise that resolves with the response to the HTTP request.
  */
 const sendHttpRequest = async (
   http: sendRequestHttpInterface,
   data: sendRequestDataInterface,
   controller: AbortController
-) => {
+): Promise<globalThis.Response> => {
   const ajaxConfig: RequestInit = {
     method: http.method || "GET",
     headers: {
