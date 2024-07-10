@@ -35,6 +35,7 @@ export const getAll = <
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     let data: T[] | [] = [];
+ 
     data = CacheManager.get(Model) as T[];
 
     if (!data) {
@@ -87,6 +88,7 @@ export const getOne = <
   popOptions?: PopulateOptions[] | PopulateOptions
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
     const id = new Types.ObjectId(req.params.id); // Converts the request parameter id to a MongoDB ObjectId.
 
     let data: T | null = null; // Initializes the data variable to hold the document.

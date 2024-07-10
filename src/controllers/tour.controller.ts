@@ -4,12 +4,20 @@ import catchAsync from "../shared/utils/catchAsync.util";
 import * as factory from "./../controllers/factory.controller";
 import AppError from "../shared/utils/AppError.util";
 import { EMPTY_RESULT } from "../shared/messages/error.message";
-import { TourInterface } from "../shared/interfaces";
 
 // AGGREGATE
 export const getTourByMonth = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const years = req.params.years;
+    const years = parseInt(req.query.years as string);
+
+    if (!years || isNaN(years)) {
+      return next(
+        new AppError(
+          "Veuillez renseigner une année valide pour votre recherche.",
+          400
+        )
+      );
+    }
 
     const tours = await Tour.aggregate([
       {
@@ -56,9 +64,20 @@ export const getTourByMonth = catchAsync(
     });
   }
 );
+
 export const getTourByGuidesByMonth = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const years = req.params.years;
+    const years = parseInt(req.query.years as string);
+
+    if (!years || isNaN(years)) {
+      return next(
+        new AppError(
+          "Veuillez renseigner une année valide pour votre recherche.",
+          400
+        )
+      );
+    }
+
     const tours = await Tour.aggregate([
       {
         $unwind: "$startDates",
@@ -161,9 +180,21 @@ export const getMostPopularTours = catchAsync(
  *
  * @returns {void} Sends a JSON response containing the top 10 tours by rating.
  */
-export const getTop10ToursByRating = catchAsync(
+
+export const getTopToursByRating = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const tours = await Tour.find().sort({ ratingsAverage: -1 }).limit(10);
+    const limit = parseInt(req.query.limit as string, 10);
+
+    if (isNaN(limit) || limit <= 0) {
+      return next(
+        new AppError(
+          "Veuillez entrer un nombre valide pour le paramètre limite.",
+          400
+        )
+      );
+    }
+
+    const tours = await Tour.find().sort({ ratingsAverage: -1 }).limit(limit);
 
     res.status(200).json({
       status: "success",

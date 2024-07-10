@@ -6,14 +6,14 @@ import reviewRouter from "./review.routes";
 const router = Router();
 
 // AGGREGATE
-router.get("/tourByMonth/:years", tourController.getTourByMonth);
+router.get("/tourByMonth", tourController.getTourByMonth);
 router.get(
-  "/tourByGuidesByYears/:years",
+  "/tourByGuidesByYears",
   tourController.getTourByGuidesByMonth
 );
 router.get("/getDistancePerItinerary", tourController.getDistancePerItinerary);
 router.get("/getMostPopularTours", tourController.getMostPopularTours);
-router.get("/getTop10ToursByRating", tourController.getTop10ToursByRating);
+router.get("/getTopToursByRating", tourController.getTopToursByRating);
 // ROUTES
 router
   .route("/")
