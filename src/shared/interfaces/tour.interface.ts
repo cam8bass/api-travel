@@ -13,9 +13,17 @@ export interface TourInterface extends Document {
   ratingsAverage: number;
   difficulty: difficultyType;
   createAt: Date;
-  imageCover: string;
+  imageCover: {
+    url: string;
+    alt: string;
+  };
   startDates: [Date];
-  images: [string];
+  images: [
+    {
+      url: string;
+      alt: string;
+    }
+  ];
   guides: [ObjectId];
   itinerary: [
     {

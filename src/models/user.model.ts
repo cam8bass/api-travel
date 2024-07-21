@@ -54,21 +54,44 @@ const userSchema = new Schema<UserInterface>({
     ],
   },
   photo: {
-    type: String,
-    default: "default-profile.png",
-    trim: true,
-    set: (value: string) => sanitizeHtml(value),
-    validate: {
-      validator: function (this: UserInterface) {
-        const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
-        const extension = path.extname(this.photo).toLowerCase();
-        if (validExtension.includes(extension)) {
-          return true;
-        }
-        return false;
-      },
-      message:
-        "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
+    url: {
+      type: String,
+      default: "default-profile.png",
+      trim: true,
+      validate: [
+        {
+          validator: function (this: UserInterface) {
+            return validator.isURL(this.photo.url, {
+              protocols: ["https"],
+              require_protocol: true,
+            });
+          },
+          message: "Veuillez entrer une URL valide utilisant HTTPS.",
+        },
+        {
+          validator: function (this: UserInterface) {
+            const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
+            const extension = path.extname(this.photo.url).toLowerCase();
+            return validExtension.includes(extension);
+          },
+          message:
+            "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
+        },
+      ],
+    },
+    alt: {
+      type: String,
+      trim: true,
+      minlength: [
+        10,
+        "Le champ description de l'image doit contenir au minimum 10 caractères",
+      ],
+      maxlength: [
+        250,
+        "Le champ description de l'image doit contenir au maximum 250 caractères",
+      ],
+      required: [true, "Le champ description de l'image est obligatoire"],
+      set: (value: string) => sanitizeHtml(value),
     },
   },
   role: {

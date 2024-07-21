@@ -144,6 +144,8 @@ export const getDistancePerItinerary = catchAsync(
  */
 export const getMostPopularTours = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+
+
     const tours = await Tour.aggregate([
       {
         $addFields: {
@@ -159,6 +161,10 @@ export const getMostPopularTours = catchAsync(
         $limit: 1,
       },
     ]);
+
+    if (!tours.length) {
+      return next(new AppError("Aucun tour trouvé.", 404));
+    }
 
     res.status(200).json({
       status: "success",

@@ -3,7 +3,6 @@ import { ObjectId, Schema, model } from "mongoose";
 import { TourInterface } from "../shared/interfaces";
 import validator from "validator";
 import sanitizeHtml from "sanitize-html";
-
 const tourSchema = new Schema<TourInterface>(
   {
     name: {
@@ -89,43 +88,20 @@ const tourSchema = new Schema<TourInterface>(
       default: Date.now(),
     },
     imageCover: {
-      url: {
-        type: String,
-        trim: true,
-        validate: [
-          {
-            validator: function (value: string) {
-              return validator.isURL(value, {
-                protocols: ["https"],
-                require_protocol: true,
-              });
-            },
-            message: "Veuillez entrer une URL valide utilisant HTTPS.",
-          },
-          {
-            validator: function (value: string) {
-              const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
-              const extension = path.extname(value).toLowerCase();
-              return validExtension.includes(extension);
-            },
-            message:
-              "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
-          },
-        ],
-      },
-      alt: {
-        type: String,
-        trim: true,
-        minlength: [
-          10,
-          "Le champ description de l'image doit contenir au minimum 10 caractères",
-        ],
-        maxlength: [
-          250,
-          "Le champ description de l'image doit contenir au maximum 250 caractères",
-        ],
-        required: [true, "Le champ description de l'image est obligatoire"],
-        set: (value: string) => sanitizeHtml(value),
+      type: String,
+      trim: true,
+      set: (value: string) => validator.escape(value),
+      validate: {
+        validator: function (this: TourInterface) {
+          const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
+          const extension = path.extname(this.imageCover).toLowerCase();
+          if (validExtension.includes(extension)) {
+            return true;
+          }
+          return false;
+        },
+        message:
+          "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
       },
     },
     startDates: {
@@ -133,48 +109,27 @@ const tourSchema = new Schema<TourInterface>(
       trim: true,
       required: [true, "Le champ dates de départ est obligatoire"],
     },
-    images: [
-      {
-        url: {
-          type: String,
-          trim: true,
-          validate: [
-            {
-              validator: function (value: string) {
-                return validator.isURL(value, {
-                  protocols: ["https"],
-                  require_protocol: true,
-                });
-              },
-              message: "Veuillez entrer une URL valide utilisant HTTPS.",
-            },
-            {
-              validator: function (value: string) {
-                const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
-                const extension = path.extname(value).toLowerCase();
-                return validExtension.includes(extension);
-              },
-              message:
-                "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
-            },
-          ],
+    images: {
+      type: [String],
+      trim: true,
+      set: (value: [string]) => value.map((name) => sanitizeHtml(name)),
+      validate: {
+        validator: function (this: TourInterface) {
+          const validExtension = [".jpg", ".jpeg", ".png", ".webp"];
+
+          const extension = this.images.map((el) => {
+            return path.extname(el).toLowerCase();
+          });
+
+          if (extension.every((ext) => validExtension.includes(ext))) {
+            return true;
+          }
+          return false;
         },
-        alt: {
-          type: String,
-          trim: true,
-          minlength: [
-            10,
-            "Le champ description de l'image doit contenir au minimum 10 caractères",
-          ],
-          maxlength: [
-            250,
-            "Le champ description de l'image doit contenir au maximum 250 caractères",
-          ],
-          set: (value: string) => sanitizeHtml(value),
-          required: [true, "Le champ description de l'image est obligatoire"],
-        },
+        message:
+          "Les formats d'image utilisables sont le JPG, JPEG, PNG et WebP.",
       },
-    ],
+    },
 
     itinerary: [
       {

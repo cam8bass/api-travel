@@ -8,6 +8,9 @@ export interface UserInterface {
   password: string;
   passwordConfirm: string;
   createAt: Date;
-  photo: string;
+  photo: {
+    url: string;
+    alt: string;
+  };
   role: userRole;
 }
